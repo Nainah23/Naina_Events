@@ -1,6 +1,7 @@
-const Event = require('../models/Event');
+const { getDB } = require('../config/db');
 const multer = require('multer');
 const path = require('path');
+const emailService = require('../utils/email');
 
 // File upload configuration
 const storage = multer.diskStorage({
@@ -37,21 +38,29 @@ exports.createEvent = (req, res) => {
         if (err) {
             return res.status(400).json({ msg: err });
         } else {
-            const { title, description, date, time, location, capacity } = req.body;
+            const { title, description, date, time, location, capacity, ticketPrice } = req.body;
 
             try {
-                const event = new Event({
+                const db = getDB();
+                const eventsCollection = db.collection('allEvents');
+
+                const event = {
                     title,
                     description,
                     date,
                     time,
                     location,
-                    image: req.file.path,
+                    image: req.file ? req.file.path : null,
+                    ticketPrice,
                     capacity,
                     organizer: req.user.id
-                });
+                };
 
-                await event.save();
+                await eventsCollection.insertOne(event);
+
+                // Send confirmation email
+                await emailService.sendEventConfirmation(req.user.email, req.user.name);
+
                 res.json(event);
             } catch (err) {
                 console.error(err.message);
@@ -63,7 +72,9 @@ exports.createEvent = (req, res) => {
 
 exports.getEvents = async (req, res) => {
     try {
-        const events = await Event.find().populate('organizer', ['name', 'email']);
+        const db = getDB();
+        const eventsCollection = db.collection('events');
+        const events = await eventsCollection.find().toArray();
         res.json(events);
     } catch (err) {
         console.error(err.message);
@@ -71,4 +82,5 @@ exports.getEvents = async (req, res) => {
     }
 };
 
-// Other CRUD operations for events
+
+

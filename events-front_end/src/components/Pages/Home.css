@@ -1,0 +1,39 @@
+.home-container {
+    background-color: #000; /* Black background */
+    color: #ffd700; /* Gold text color */
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.nav-links {
+    list-style-type: none;
+    display: flex;
+}
+
+.nav-links li {
+    margin-right: 20px;
+}
+
+.content {
+    text-align: center;
+    padding: 20px;
+}
+
+.heading {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.description {
+    font-size: 1.2rem;
+    line-height: 1.5;
+}

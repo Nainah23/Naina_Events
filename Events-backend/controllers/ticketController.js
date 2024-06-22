@@ -1,10 +1,13 @@
-const Ticket = require('../models/Ticket');
 const QRCode = require('qrcode');
+const { getDB } = require('../config/db');
 
 exports.generateTicket = async (req, res) => {
     const { eventId, userId, type } = req.body;
 
     try {
+        const db = getDB();
+        const ticketsCollection = db.collection('tickets');
+
         const qrCodeData = {
             eventId,
             userId,
@@ -15,14 +18,14 @@ exports.generateTicket = async (req, res) => {
         const qrCodeText = JSON.stringify(qrCodeData);
         const qrCodeImage = await QRCode.toDataURL(qrCodeText);
 
-        const ticket = new Ticket({
+        const ticket = {
             event: eventId,
             user: userId,
             type,
             qrCode: qrCodeImage
-        });
+        };
 
-        await ticket.save();
+        await ticketsCollection.insertOne(ticket);
         res.json(ticket);
     } catch (err) {
         console.error(err.message);
@@ -31,10 +34,12 @@ exports.generateTicket = async (req, res) => {
 };
 
 exports.getTicketsByUser = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user.id; // Assuming req.user.id is set by your authentication middleware
 
     try {
-        const tickets = await Ticket.find({ user: userId }).populate('event');
+        const db = getDB();
+        const ticketsCollection = db.collection('tickets');
+        const tickets = await ticketsCollection.find({ user: userId }).toArray();
         res.json(tickets);
     } catch (err) {
         console.error(err.message);
@@ -42,4 +47,4 @@ exports.getTicketsByUser = async (req, res) => {
     }
 };
 
-// Other ticket-related operations
+

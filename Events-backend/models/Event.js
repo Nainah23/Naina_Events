@@ -7,6 +7,7 @@ const EventSchema = new mongoose.Schema({
     time: { type: String, required: true },
     location: { type: String, required: true },
     image: { type: String },
+    ticketPrice: { type: Number, required: true },
     capacity: { type: Number, required: true },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });

@@ -1,0 +1,26 @@
+.register-event-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #1a1a1a;
+  }
+  
+  .register-event-button {
+    padding: 10px 20px;
+    background-color: #ffd700;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .register-event-button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+  }
+  
+  .register-event-button:hover:not(:disabled) {
+    background-color: #e6b800;
+  }
+  

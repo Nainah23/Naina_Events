@@ -1,0 +1,46 @@
+.event-list-container {
+    padding: 20px;
+    background-color: #1a1a1a;
+    color: #ffd700;
+  }
+  
+  .event-list-container h2 {
+    margin-bottom: 20px;
+  }
+  
+  .event-list-item {
+    padding: 10px;
+    border: 1px solid #ffd700;
+    border-radius: 5px;
+    background-color: #333;
+    color: #ffd700;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  
+  .event-list-item:hover {
+    background-color: #444;
+  }
+  
+  .event-list-nav {
+    margin-top: 20px;
+  }
+  
+  .event-list-nav ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .event-list-nav li {
+    margin-bottom: 10px;
+  }
+  
+  .nav-link {
+    color: #ffd700;
+    text-decoration: none;
+  }
+  
+  .nav-link:hover {
+    text-decoration: underline;
+  }
+  
