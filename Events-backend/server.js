@@ -25,7 +25,7 @@ app.use('/api/events', require('./routes/eventRoutes'));
 app.use('/api/tickets', require('./routes/ticketRoutes'));
 app.use('/api/registrations', require('./routes/registrationRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
-app.use('/api/test', testRoutes)
+app.use('/api/test', testRoutes);
 app.get('/set-cookies', (req, res) => {
     res.cookie('username', 'John Doe');
     res.cookie('isAuthenticated', true, { httpOnly: true });
