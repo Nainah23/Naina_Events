@@ -1,91 +1,130 @@
-// components/Events/CreateEvent.jsx
-import React, { useState } from 'react';
-import { createEvent } from '../../api/events';
-import { useNavigate } from 'react-router-dom';
-import './CreateEvent.css';
+// authController.js
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { getDB } = require('../config/db');
+const emailService = require('../utils/email');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const CreateEvent = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [location, setLocation] = useState('');
-  const [image, setImage] = useState(null);
-  const [capacity, setCapacity] = useState('');
-  const [ticketPrice, setTicketPrice] = useState('');
-
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('date', date);
-    formData.append('time', time);
-    formData.append('location', location);
-    formData.append('image', image);
-    formData.append('capacity', capacity);
-    formData.append('ticketPrice', ticketPrice);
+exports.register = async (req, res) => {
+    const { name, email, password, phoneNumber } = req.body;
 
     try {
-      await createEvent(formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      // Redirect to /allEvents upon successful event creation
-      navigate('/allEvents');
-    } catch (err) {
-      console.error('Event creation error', err);
-    }
-  };
+        const db = getDB();
+        const userCollection = db.collection('users');
 
-  return (
-    <div className="create-event-container">
-      <form onSubmit={handleSubmit} className="create-event-form">
-        <h2>Create Event</h2>
-        <div className="form-group">
-          <label>Title:</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>Description:</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>Date:</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>Time:</label>
-          <input type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>Location:</label>
-          <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>Image:</label>
-          <input type="file" onChange={(e) => setImage(e.target.files[0])} required />
-        </div>
-        <div className="form-group">
-          <label>Capacity:</label>
-          <input type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>Ticket Price:</label>
-          <input type="number" value={ticketPrice} onChange={(e) => setTicketPrice(e.target.value)} required />
-        </div>
-        <button type="submit" className="create-event-button">Create Event</button>
-      </form>
-    </div>
-  );
+        let user = await userCollection.findOne({ email });
+        if (user) {
+            return res.status(400).json({ msg: 'User already exists' });
+        }
+
+        // Hash the password before storing it
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        user = {
+            name,
+            email,
+            password: hashedPassword,
+            phoneNumber
+        };
+
+        await userCollection.insertOne(user);
+
+        // Send registration email
+        await emailService.sendRegistrationEmail(email, name);
+
+        const payload = {
+            user: {
+                id: user._id
+            }
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' },
+            (err, token) => {
+                if (err) throw err;
+                res.json({ token });
+            }
+        );
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
 };
 
-export default CreateEvent;
+exports.login = async (req, res) => {
+    const { email, password } = req.body;
 
-// controllers/eventControllers.js;;
+    try {
+        const db = getDB();
+        const userCollection = db.collection('users');
+
+        const user = await userCollection.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ msg: 'Invalid credentials' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ msg: 'Invalid credentials' });
+        }
+
+        const payload = {
+            user: {
+                id: user._id
+            }
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' },
+            (err, token) => {
+                if (err) throw err;
+                res.json({ token });
+            }
+        );
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const db = getDB();
+        const userCollection = db.collection('users');
+
+        const user = await userCollection.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        // Generate password reset token (you may want to store and validate it)
+        const resetToken = jwt.sign(
+            { user: user._id },
+            process.env.JWT_RESET_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        // Example of password reset link (you would send this via email)
+        const resetLink = `${process.env.BASE_URL}/reset-password/${resetToken}`;
+
+        // Send password reset email
+        await emailService.sendPasswordResetEmail(email, resetLink);
+
+        res.json({ msg: 'Password reset email sent' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+};
+
+eventController.js
 const { getDB } = require('../config/db');
 const multer = require('multer');
 const path = require('path');
@@ -169,3 +208,80 @@ exports.getEvents = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
+
+
+// authRoutes.js;
+const express = require('express');
+const router = express.Router();
+const passport = require('passport');
+const authController = require('../controllers/authController');
+
+router.post('/register', authController.register);
+router.get('/register', authController.register);
+router.post('/login', authController.login);
+router.get('/login', authController.login);
+router.post('/reset-passwd', authController.resetPassword);
+router.get('/reset-passwd', authController.resetPassword);
+
+module.exports = router;
+
+// eventRoutes.js;
+const express = require('express');
+const router = express.Router();
+const passport = require('passport');
+const eventController = require('../controllers/eventController');
+const authMiddleware = require('../middleware/authMiddleware');
+
+router.post('/create', eventController.createEvent);
+router.get('/allEvents', eventController.getEvents);
+
+module.exports = router;
+
+// server.js;
+// server.js
+const express = require('express');
+const { connectDB } = require('./config/db'); // Import connectDB correctly
+const passport = require('passport');
+const dotenv = require('dotenv');
+dotenv.config();
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const testRoutes = require('./routes/test');
+
+const app = express();
+// Handle CORS
+app.use(cors({
+    origin: '*'
+  }));
+
+// Middleware
+app.use(express.json());
+app.use(passport.initialize());
+require('./config/passport')(passport);
+
+// Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/events', require('./routes/eventRoutes'));
+app.use('/api/tickets', require('./routes/ticketRoutes'));
+app.use('/api/registrations', require('./routes/registrationRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/test', testRoutes);
+app.get('/set-cookies', (req, res) => {
+    res.cookie('username', 'John Doe');
+    res.cookie('isAuthenticated', true, { httpOnly: true });
+    res.send('Cookies are set');
+});
+app.get('/read-cookies', (req, res) => {
+    const cookies = req.cookies;
+    res.json(cookies);
+});
+const PORT = process.env.PORT || 8080;
+
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}).catch(error => {
+    console.error('Error connecting to MongoDB:', error);
+});

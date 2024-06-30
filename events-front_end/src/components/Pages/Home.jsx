@@ -11,7 +11,7 @@ const Home = () => {
                 </ul>
             </nav>
             <div className="content">
-                <h1 className="heading">Welcome to the Event Management System</h1>
+                <h1 className="heading">WELCOME TO NAINA EVENTS</h1>
                 <p className="description">
                     Discover and manage your events with ease. Whether you're organizing an
                     exciting concert, a corporate gathering, or a community fundraiser, our

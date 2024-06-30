@@ -16,7 +16,7 @@ const Login = () => {
       const data = await login({ email, password });
       setAuthData(data);
       console.log('Form submitted');
-      navigate('/events'); // Redirect to /events after successful login
+      navigate('/allEvents');
     } catch (err) {
       console.error('Login error', err);
     }

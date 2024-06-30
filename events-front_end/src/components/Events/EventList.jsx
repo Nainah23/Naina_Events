@@ -35,7 +35,7 @@ const EventList = () => {
       <nav className="event-list-nav">
         <ul>
           <li>
-            <Link to="/create-event" className="nav-link">Create Event</Link>
+            <Link to="/create" className="nav-link">Create Event</Link>
           </li>
           <li>
             <Link to="/user" className="nav-link">My Tickets</Link> {/* Link to /user for tickets */}

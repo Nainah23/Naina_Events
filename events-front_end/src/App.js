@@ -12,7 +12,7 @@ import CreateEvent from './components/Events/CreateEvent';
 import InitiatePayment from './components/Payments/InitiatePayment';
 import PaymentCallback from './components/Payments/PaymentCallback';
 import RegisterForEvent from './components/Registrations/RegisterForEvent';
-import GenerateTicket from './components/Tickets/GenerateTicket';
+import TicketsByUser from './components/Tickets/GenerateTicket';
 
 const App = () => {
   return (
@@ -24,14 +24,13 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/events" element={<EventList />} />
+              <Route path="/allEvents" element={<EventList />} />
               <Route path="/event-details" element={<EventDetails />} />
-              <Route path="/create-event" element={<CreateEvent />} />
-              <Route path="/initiate-payment" element={<InitiatePayment />} />
-              <Route path="/payment-callback" element={<PaymentCallback />} />
-              <Route path="/register-for-event" element={<RegisterForEvent />} />
-              <Route path="/generate-ticket" element={<GenerateTicket />} />
-              <Route path="/user" element={<GenerateTicket />} /> {/* Use GenerateTicket for /user route */}
+              <Route path="/create" element={<CreateEvent />} />
+              <Route path="/initiate" element={<InitiatePayment />} />
+              <Route path="/callback" element={<PaymentCallback />} />
+              <Route path="/register/:eventId" element={<RegisterForEvent />} />
+              <Route path="/user" element={<TicketsByUser />} /> 
             </Routes>
           </Router>
         </PaymentProvider>

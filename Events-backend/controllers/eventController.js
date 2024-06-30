@@ -38,7 +38,7 @@ exports.createEvent = (req, res) => {
         if (err) {
             return res.status(400).json({ msg: err });
         } else {
-            const { title, description, date, time, location, capacity, ticketPrice } = req.body;
+            const { title, description, date, time, location, image, capacity, ticketPrice } = req.body;
 
             try {
                 const db = getDB();
@@ -73,7 +73,7 @@ exports.createEvent = (req, res) => {
 exports.getEvents = async (req, res) => {
     try {
         const db = getDB();
-        const eventsCollection = db.collection('events');
+        const eventsCollection = db.collection('allEvents');
         const events = await eventsCollection.find().toArray();
         res.json(events);
     } catch (err) {
