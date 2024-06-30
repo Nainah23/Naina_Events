@@ -1,3 +1,5 @@
+const Event = require('../models/Event');
+const User = require('../models/User');
 const { getDB } = require('../config/db');
 const multer = require('multer');
 const path = require('path');
@@ -44,7 +46,14 @@ exports.createEvent = (req, res) => {
                 const db = getDB();
                 const eventsCollection = db.collection('allEvents');
 
-                const event = {
+                // Find the authenticated user
+                const user = await User.findById(req.user.id);
+
+                if (!user) {
+                    return res.status(404).json({ msg: 'User not found' });
+                }
+
+                const event = new Event({
                     title,
                     description,
                     date,
@@ -53,15 +62,15 @@ exports.createEvent = (req, res) => {
                     image: req.file ? req.file.path : null,
                     ticketPrice,
                     capacity,
-                    organizer: req.user.id
-                };
+                    organizer: user // Set the organizer to the user object
+                });
 
-                await eventsCollection.insertOne(event);
+                const newEvent = await event.save();
 
                 // Send confirmation email
-                await emailService.sendEventConfirmation(req.user.email, req.user.name);
+                await emailService.sendEventConfirmation(user.email, user.name);
 
-                res.json(event);
+                res.json(newEvent);
             } catch (err) {
                 console.error(err.message);
                 res.status(500).send('Server error');
@@ -81,6 +90,3 @@ exports.getEvents = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
-
-
-

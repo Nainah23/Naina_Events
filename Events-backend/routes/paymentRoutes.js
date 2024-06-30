@@ -4,7 +4,7 @@ const passport = require('passport');
 const paymentController = require('../controllers/paymentController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-router.post('/initiate', paymentController.initiatePayment);
+router.post('/initiate', authMiddleware, paymentController.initiatePayment);
 router.post('/callback', paymentController.paymentCallback);
 
 module.exports = router;

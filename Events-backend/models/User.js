@@ -9,6 +9,11 @@ const UserSchema = new mongoose.Schema({
     phoneNumber: { type: String, required: true }
 });
 
+// Index definitions
+UserSchema.index({ _id: 1 });
+UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ name: 1 }); 
+
 UserSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
     const salt = await bcrypt.genSalt(10);

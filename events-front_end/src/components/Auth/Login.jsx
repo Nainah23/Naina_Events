@@ -1,3 +1,4 @@
+// Auth/Login.jsx
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { login } from '../../api/auth';
@@ -7,15 +8,14 @@ import './Login.css';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setAuthData } = useContext(AuthContext);
+  const { login: setAuthToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await login({ email, password });
-      setAuthData(data);
-      console.log('Form submitted');
+      const { token } = await login({ email, password });
+      setAuthToken(token); // Store token using context function
       navigate('/allEvents');
     } catch (err) {
       console.error('Login error', err);

@@ -8,10 +8,16 @@ export const register = async (userData) => {
   return response.data;
 };
 
+
 export const login = async (userData) => {
-  const response = await axios.post(API_URL + 'login', userData);
-  return response.data;
+  try {
+    const response = await axios.post(API_URL + 'login', userData);
+    return response.data; // Assuming server returns { token: 'your_jwt_token' }
+  } catch (error) {
+    throw error;
+  }
 };
+
 
 export const resetPassword = async (email) => {
   const response = await axios.post(API_URL + 'reset-password', { email });
