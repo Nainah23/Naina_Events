@@ -12,14 +12,13 @@ export const getEvents = async () => {
   }
 };
 
-export const createEvent = async (eventData, config) => {
+export const createEvent = async (eventData) => {
   try {
     const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('No token found');
     }
     const response = await axios.post(API_URL + 'create', eventData, {
-      ...config,
       headers: {
         Authorization: `Bearer ${token}`
       }

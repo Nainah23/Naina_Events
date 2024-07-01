@@ -1,5 +1,4 @@
 const Event = require('../models/Event');
-const User = require('../models/User');
 const { getDB } = require('../config/db');
 const multer = require('multer');
 const path = require('path');
@@ -46,12 +45,11 @@ exports.createEvent = (req, res) => {
                 const db = getDB();
                 const eventsCollection = db.collection('allEvents');
 
-                // Find the authenticated user
-                const user = await User.findById(req.user.id);
-
-                if (!user) {
-                    return res.status(404).json({ msg: 'User not found' });
-                }
+                const user = {
+                    id: req.user.id,
+                    email: req.user.email,
+                    name: req.user.name
+                };
 
                 const event = new Event({
                     title,

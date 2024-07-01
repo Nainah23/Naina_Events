@@ -35,7 +35,9 @@ exports.register = async (req, res) => {
 
         const payload = {
             user: {
-                id: user._id
+                id: user._id,
+                email: user.email,
+                name: user.name
             }
         };
 
@@ -45,7 +47,7 @@ exports.register = async (req, res) => {
             { expiresIn: '1h' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token });
+                res.json({ token }); // Send token in response
             }
         );
     } catch (err) {
@@ -73,7 +75,9 @@ exports.login = async (req, res) => {
 
         const payload = {
             user: {
-                id: user._id
+                id: user._id,
+                email: user.email,
+                name: user.name
             }
         };
 
@@ -83,7 +87,7 @@ exports.login = async (req, res) => {
             { expiresIn: '1h' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token });
+                res.json({ token }); // Send token in response
             }
         );
     } catch (err) {
