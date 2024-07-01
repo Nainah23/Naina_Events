@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Index definitions
-UserSchema.index({ _id: 1 });
+//UserSchema.index({ _id: 1 });
 UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ name: 1 }); 
 
