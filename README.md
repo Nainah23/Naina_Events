@@ -1,8 +1,6 @@
 ```markdown
 # Naina_Events
 
-![Logo](path/to/logo.png) <!-- Replace with your logo image path -->
-
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
